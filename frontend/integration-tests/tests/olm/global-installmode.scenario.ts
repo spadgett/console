@@ -139,9 +139,9 @@ describe('Interacting with an `AllNamespaces` install mode Operator (Redis)', ()
     await element(by.buttonText('Create Redis Enterprise Cluster')).click();
     await browser.wait(until.presenceOf($('.ace_text-input')));
 
-    const content = await yamlView.editorContent.getText();
+    const content = await yamlView.getEditorContent();
     const newContent = _.defaultsDeep({}, {metadata: {name: `${testName}-redisenterprisecluster`, labels: {[testLabel]: testName}}}, safeLoad(content));
-    await yamlView.setContent(safeDump(newContent));
+    await yamlView.setEditorContent(safeDump(newContent));
 
     expect($('.co-create-operand__header').getText()).toContain('Create Redis Enterprise Cluster');
   });
