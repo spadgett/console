@@ -54,7 +54,9 @@ export const EditYAML = connect(stateToProps)(
       this.monacoRef = React.createRef();
       this.resize = () => {
         this.setState({height: this.height});
-        this.monacoRef.current.editor.layout({height: this.editorHeight, width: this.width});
+        if (this.monacoRef.current) {
+          this.monacoRef.current.editor.layout({height: this.editorHeight, width: this.width});
+        }
       };
       // k8s uses strings for resource versions
       this.displayedVersion = '0';

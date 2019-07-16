@@ -32,7 +32,7 @@ function groupVersionKindToEnums(gvkObjArray: [GroupVersionKind]) {
 /**
  * Append enums to APIVersion or create the object if it doesn't exist
  */
-function createOrAppendAPIVersion(openAPI: any, apiVersionEnum: string[]) {
+function createOrAppendAPIVersion(openAPI, apiVersionEnum: string[]) {
   if (openAPI.apiVersion) {
     if (openAPI.apiVersion.enum){
       openAPI.apiVersion.enum.push(...apiVersionEnum);
@@ -49,7 +49,7 @@ function createOrAppendAPIVersion(openAPI: any, apiVersionEnum: string[]) {
 /**
  * Append enums to kind or create the object if it doesn't exist
  */
-function createOrAppendKind(openAPI: any, kindEnum: string[]) {
+function createOrAppendKind(openAPI, kindEnum: string[]) {
   if (openAPI.kind) {
     if (openAPI.kind.enum){
       openAPI.kind.enum.push(...kindEnum);
@@ -69,14 +69,14 @@ function createOrAppendKind(openAPI: any, kindEnum: string[]) {
  * Context: The openAPI specification gives the group, version, and kind objects as 'x-kubernetes-group-version-kind'
  * instead of adding the values to the enum's
  */
-function convertGroupVersionKindToJSONSchema(openAPI: any) {
+function convertGroupVersionKindToJSONSchema(openAPI) {
   for (const definition in openAPI) {
     if (openAPI.hasOwnProperty(definition)) {
       const openAPIDefinition = openAPI[definition];
       const groupVersionKind = openAPIDefinition['x-kubernetes-group-version-kind'];
 
       // If this object has x-kubernetes-group-version-kind then add their values into correct places in JSON Schema
-      if (groupVersionKind) {
+      if (groupVersionKind && openAPIDefinition.properties) {
         const gvkEnums = groupVersionKindToEnums(groupVersionKind);
         createOrAppendAPIVersion(openAPIDefinition.properties, gvkEnums.versionEnum);
         createOrAppendKind(openAPIDefinition.properties, gvkEnums.kindEnum);
@@ -89,7 +89,10 @@ function convertGroupVersionKindToJSONSchema(openAPI: any) {
 /**
  * Takes in the stored kubernetes openAPI object and outputs a JSON Schema of the object
  */
-export function openAPItoJSONSchema(openAPI: any) {
+export function openAPItoJSONSchema(openAPI) {
+  if (!openAPI) {
+    return null;
+  }
 
   const convertedOpenAPI = convertGroupVersionKindToJSONSchema(openAPI);
 
