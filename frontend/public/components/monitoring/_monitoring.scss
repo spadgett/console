@@ -24,6 +24,11 @@
   margin: 0 -5px 20px -5px;
 }
 
+.monitoring-dashboards__table {
+  max-height: 300px;
+  overflow: scroll;
+}
+
 .monitoring-dashboards__single-stat {
   font-size: var(--pf-global--FontSize--3xl);
 }

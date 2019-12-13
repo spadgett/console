@@ -388,7 +388,7 @@ export const secondsToNanoSeconds = (value) => {
   return Number.isFinite(val) ? val * 1000 ** 3 : 0;
 };
 
-const formatToFractionalDigits = (value, digits) =>
+export const formatToFractionalDigits = (value, digits) =>
   Intl.NumberFormat(undefined, {
     minimumFractionDigits: digits,
     maximumFractionDigits: digits,

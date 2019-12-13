@@ -110,7 +110,7 @@ const Card: React.FC<PanelProps> = ({ panel, pollInterval, timespan }) => {
               units={panel.units}
             />
           )}
-          {panel.type === 'table' && (
+          {panel.type === 'table' && panel.transform === 'table' && (
             <Table panel={panel} pollInterval={pollInterval} queries={queries} />
           )}
         </DashboardCardBody>
