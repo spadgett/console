@@ -2,6 +2,10 @@
   justify-content: flex-start;
 }
 
+.monitoring-dashboards__card-header {
+  flex: 20 0 auto;
+}
+
 .monitoring-dashboards__dropdown {
   width: 120px;
 }
@@ -21,7 +25,17 @@
 }
 
 .monitoring-dashboards__panel {
+  height: calc(100% - 20px);
   margin: 0 -5px 20px -5px;
+
+  .query-browser__wrapper {
+    border: 0;
+  }
+}
+
+.monitoring-dashboards__row {
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .monitoring-dashboards__table {
@@ -31,6 +45,7 @@
 
 .monitoring-dashboards__single-stat {
   font-size: var(--pf-global--FontSize--3xl);
+  padding-top: 10px !important;
 }
 
 .query-browser__toggle-graph {
