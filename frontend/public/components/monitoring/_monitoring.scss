@@ -38,11 +38,6 @@
   flex-wrap: wrap;
 }
 
-.monitoring-dashboards__table {
-  max-height: 300px;
-  overflow: scroll;
-}
-
 .monitoring-dashboards__single-stat {
   font-size: var(--pf-global--FontSize--3xl);
   padding-top: 10px !important;

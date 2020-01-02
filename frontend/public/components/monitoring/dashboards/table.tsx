@@ -21,6 +21,7 @@ import {
   usePoll,
   useSafeFetch,
 } from '../../utils';
+import { TablePagination } from '../metrics';
 
 const formatNumber = (value: number, decimals: number, unit: string): string => {
   if (_.isNil(value) || isNaN(value)) {
@@ -48,6 +49,8 @@ const Table: React.FC<Props> = ({ panel, pollInterval, queries }) => {
   const [error, setError] = React.useState();
   const [isLoading, setIsLoading] = React.useState(true);
   const [data, setData] = React.useState();
+  const [page, setPage] = React.useState(1);
+  const [perPage, setPerPage] = React.useState(10);
 
   const safeFetch = React.useCallback(useSafeFetch(), []);
 
@@ -123,17 +126,26 @@ const Table: React.FC<Props> = ({ panel, pollInterval, queries }) => {
     title,
     transforms: [wrappable],
   }));
+  const paginatedRows = _.sortBy(rows, _.first).slice((page - 1) * perPage, page * perPage);
+
   return (
     <div className="monitoring-dashboards__table">
       <PFTable
         aria-label="query results table"
         cells={cells}
-        rows={_.sortBy(rows, _.first)}
+        rows={paginatedRows}
         variant={TableVariant.compact}
       >
         <TableHeader />
         <TableBody />
       </PFTable>
+      <TablePagination
+        itemCount={rows.length}
+        page={page}
+        perPage={perPage}
+        setPage={setPage}
+        setPerPage={setPerPage}
+      />
     </div>
   );
 };

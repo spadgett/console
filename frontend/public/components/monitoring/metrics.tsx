@@ -574,7 +574,7 @@ const paginationOptions = [10, 20, 50, 100, 200, 500].map((n) => ({
   value: n,
 }));
 
-const TablePagination = ({ itemCount, page, perPage, setPage, setPerPage }) => {
+export const TablePagination = ({ itemCount, page, perPage, setPage, setPerPage }) => {
   const onPerPageSelect = (e, v) => {
     // When changing the number of results per page, keep the start row approximately the same
     const firstRow = (page - 1) * perPage;
