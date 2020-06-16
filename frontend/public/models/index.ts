@@ -904,23 +904,6 @@ export const LimitRangeModel: K8sKind = {
   labelPluralKey: 'public~LimitRanges',
 };
 
-export const APIServiceModel: K8sKind = {
-  label: 'APIService',
-  // t('public~APIService')
-  labelKey: 'public~APIService',
-  labelPlural: 'APIServices',
-  // t('public~APIServices')
-  labelPluralKey: 'APIServices',
-  apiVersion: 'v1',
-  apiGroup: 'apiregistration.k8s.io',
-  plural: 'apiservices',
-  abbr: 'APIS',
-  namespaced: false,
-  kind: 'APIService',
-  id: 'apiservice',
-  crd: true,
-};
-
 export const UserModel: K8sKind = {
   label: 'User',
   // t('public~User')
