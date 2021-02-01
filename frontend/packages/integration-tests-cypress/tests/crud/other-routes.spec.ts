@@ -1,4 +1,7 @@
 import { checkErrors } from '../../support';
+import { nav } from '../../views/nav';
+import { listPage } from '../../views/list-page';
+import { guidedTour } from '../../views/guided-tour';
 
 describe('Visiting other routes', () => {
   before(() => {
@@ -50,5 +53,48 @@ describe('Visiting other routes', () => {
       cy.byLegacyTestID('error-page').should('not.exist');
       cy.testA11y(`${route} page`);
     });
+  });
+});
+
+describe('Test perspective query parameters', () => {
+  before(() => {
+    cy.login();
+  });
+
+  beforeEach(() => {
+    cy.visit('/k8s/cluster/projects');
+    listPage.rows.shouldBeLoaded();
+  });
+
+  afterEach(() => {
+    checkErrors();
+  });
+
+  after(() => {
+    cy.logout();
+  });
+
+  it('tests Developer query parameter', () => {
+    nav.sidenav.switcher.changePerspectiveTo('Administrator');
+    nav.sidenav.switcher.shouldHaveText('Administrator');
+    cy.visit('/topology/all-namespaces', {
+      qs: {
+        view: 'graph',
+        perspective: 'dev',
+      },
+    });
+    guidedTour.close();
+    nav.sidenav.switcher.shouldHaveText('Developer');
+  });
+  it('tests Administrator query parameter', () => {
+    nav.sidenav.switcher.changePerspectiveTo('Developer');
+    guidedTour.close();
+    nav.sidenav.switcher.shouldHaveText('Developer');
+    cy.visit('/dashboards', {
+      qs: {
+        perspective: 'admin',
+      },
+    });
+    nav.sidenav.switcher.shouldHaveText('Administrator');
   });
 });
