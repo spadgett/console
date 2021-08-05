@@ -12,6 +12,7 @@ export type WatchK8sResource = {
   limit?: number;
   fieldSelector?: string;
   optional?: boolean;
+  cluster?: string;
 };
 
 export type WatchK8sResult<R extends K8sResourceCommon | K8sResourceCommon[]> = [R, boolean, any];
@@ -51,11 +52,41 @@ export type ConsoleFetch = (
 ) => Promise<Response>;
 
 export type ConsoleFetchJSON<T = any> = {
-  (url: string, method?: string, options?: RequestInit, timeout?: number): Promise<T>;
-  delete(url: string, json?: any, options?: RequestInit, timeout?: number): Promise<T>;
-  post(url: string, json: any, options?: RequestInit, timeout?: number): Promise<T>;
-  put(url: string, json: any, options?: RequestInit, timeout?: number): Promise<T>;
-  patch(url: string, json: any, options?: RequestInit, timeout?: number): Promise<T>;
+  (
+    url: string,
+    method?: string,
+    options?: RequestInit,
+    timeout?: number,
+    cluster?: string,
+  ): Promise<T>;
+  delete(
+    url: string,
+    json?: any,
+    options?: RequestInit,
+    timeout?: number,
+    cluster?: string,
+  ): Promise<T>;
+  post(
+    url: string,
+    json: any,
+    options?: RequestInit,
+    timeout?: number,
+    cluster?: string,
+  ): Promise<T>;
+  put(
+    url: string,
+    json: any,
+    options?: RequestInit,
+    timeout?: number,
+    cluster?: string,
+  ): Promise<T>;
+  patch(
+    url: string,
+    json: any,
+    options?: RequestInit,
+    timeout?: number,
+    cluster?: string,
+  ): Promise<T>;
 };
 
 export type ConsoleFetchText = (...args: Parameters<ConsoleFetch>) => Promise<string>;

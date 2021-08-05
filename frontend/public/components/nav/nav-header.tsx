@@ -1,22 +1,38 @@
 import * as React from 'react';
+// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+// @ts-ignore
+import { useDispatch } from 'react-redux';
 import { Dropdown, DropdownItem, DropdownToggle, Title } from '@patternfly/react-core';
 import { CaretDownIcon } from '@patternfly/react-icons';
 import { Perspective, useExtensions, isPerspective } from '@console/plugin-sdk';
+import { formatNamespaceRoute } from '@console/internal/actions/ui';
+import { detectFeatures, clearSSARFlags } from '@console/internal/actions/features';
 import { history } from '../utils';
 import { useTelemetry } from '@console/shared/src/hooks/useTelemetry';
-import { useActivePerspective, ACM_LINK_ID } from '@console/shared';
 import { K8sResourceKind, referenceForModel } from '../../module/k8s';
 import { ConsoleLinkModel } from '../../models';
 import { useK8sWatchResource } from '../utils/k8s-watch-hook';
 import { useTranslation } from 'react-i18next';
-import * as acmIcon from '../../imgs/ACM-icon.svg';
+import {
+  useActiveCluster,
+  useActiveNamespace,
+  useActivePerspective,
+  ACM_LINK_ID,
+} from '@console/shared';
+import isMultiClusterEnabled from '@console/app/src/utils/isMultiClusterEnabled';
 
 export type NavHeaderProps = {
   onPerspectiveSelected: () => void;
 };
 
+const ClusterIcon: React.FC<{}> = () => <span className="co-m-resource-icon">C</span>;
+
 const NavHeader: React.FC<NavHeaderProps> = ({ onPerspectiveSelected }) => {
+  const dispatch = useDispatch();
+  const [activeCluster, setActiveCluster] = useActiveCluster();
+  const [activeNamespace] = useActiveNamespace();
   const [activePerspective, setActivePerspective] = useActivePerspective();
+  const [isClusterDropdownOpen, setClusterDropdownOpen] = React.useState(false);
   const [isPerspectiveDropdownOpen, setPerspectiveDropdownOpen] = React.useState(false);
   const perspectiveExtensions = useExtensions<Perspective>(isPerspective);
   const [consoleLinks] = useK8sWatchResource<K8sResourceKind[]>({
@@ -33,6 +49,20 @@ const NavHeader: React.FC<NavHeaderProps> = ({ onPerspectiveSelected }) => {
     setPerspectiveDropdownOpen(!isPerspectiveDropdownOpen);
   }, [isPerspectiveDropdownOpen]);
   const fireTelemetryEvent = useTelemetry();
+
+  const onClusterSelect = (event, cluster: string): void => {
+    event.preventDefault();
+    setClusterDropdownOpen(false);
+    setActiveCluster(cluster);
+    // TODO: Move this logic into `setActiveCluster`?
+    dispatch(clearSSARFlags());
+    dispatch(detectFeatures());
+    const oldPath = window.location.pathname;
+    const newPath = formatNamespaceRoute(activeNamespace, oldPath, window.location, true);
+    if (newPath !== oldPath) {
+      history.pushPath(newPath);
+    }
+  };
 
   const onPerspectiveSelect = React.useCallback(
     (event: React.MouseEvent<HTMLLinkElement>, perspective: Perspective): void => {
@@ -68,41 +98,36 @@ const NavHeader: React.FC<NavHeaderProps> = ({ onPerspectiveSelected }) => {
     [isPerspectiveDropdownOpen, togglePerspectiveOpen],
   );
 
-  const perspectiveItems = React.useMemo(() => {
-    const items = perspectiveExtensions.map((nextPerspective: Perspective) => (
-      <DropdownItem
-        key={nextPerspective.properties.id}
-        onClick={(event: React.MouseEvent<HTMLLinkElement>) =>
-          onPerspectiveSelect(event, nextPerspective)
-        }
-        isHovered={nextPerspective.properties.id === activePerspective}
-      >
-        <Title headingLevel="h2" size="md" data-test-id="perspective-switcher-menu-option">
-          <span className="oc-nav-header__icon">{nextPerspective.properties.icon}</span>
-          {nextPerspective.properties.name}
-        </Title>
-      </DropdownItem>
-    ));
-    if (acmLink) {
-      items.push(
+  const clusterItems = (window.SERVER_FLAGS.clusters ?? []).map((managedCluster: string) => (
+    <DropdownItem
+      key={managedCluster}
+      component="button"
+      onClick={(e) => onClusterSelect(e, managedCluster)}
+      title={managedCluster}
+    >
+      <ClusterIcon />
+      {managedCluster}
+    </DropdownItem>
+  ));
+
+  const perspectiveItems = React.useMemo(
+    () =>
+      perspectiveExtensions.map((nextPerspective: Perspective) => (
         <DropdownItem
-          key={ACM_LINK_ID}
-          onClick={() => {
-            window.location.href = acmLink.spec.href;
-          }}
-          isHovered={ACM_LINK_ID === activePerspective}
+          key={nextPerspective.properties.id}
+          onClick={(event: React.MouseEvent<HTMLLinkElement>) =>
+            onPerspectiveSelect(event, nextPerspective)
+          }
+          isHovered={nextPerspective.properties.id === activePerspective}
         >
           <Title headingLevel="h2" size="md" data-test-id="perspective-switcher-menu-option">
-            <span className="oc-nav-header__icon">
-              <img src={acmIcon} height="12em" width="12em" alt="" />
-            </span>
-            {t('public~Advanced Cluster Management')}
+            <span className="oc-nav-header__icon">{nextPerspective.properties.icon}</span>
+            {nextPerspective.properties.name}
           </Title>
-        </DropdownItem>,
-      );
-    }
-    return items;
-  }, [acmLink, activePerspective, onPerspectiveSelect, perspectiveExtensions, t]);
+        </DropdownItem>
+      )),
+    [activePerspective, onPerspectiveSelect, perspectiveExtensions],
+  );
 
   const { icon, name } = React.useMemo(
     () => perspectiveExtensions.find((p) => p.properties.id === activePerspective).properties,
@@ -110,18 +135,50 @@ const NavHeader: React.FC<NavHeaderProps> = ({ onPerspectiveSelected }) => {
   );
 
   return (
-    <div
-      className="oc-nav-header"
-      data-tour-id="tour-perspective-dropdown"
-      data-quickstart-id="qs-perspective-switcher"
-    >
-      <Dropdown
-        isOpen={isPerspectiveDropdownOpen}
-        toggle={renderToggle(icon, name)}
-        dropdownItems={perspectiveItems}
-        data-test-id="perspective-switcher-menu"
-      />
-    </div>
+    <>
+      {isMultiClusterEnabled() && (
+        <div className="oc-nav-header">
+          <Dropdown
+            isOpen={isClusterDropdownOpen}
+            toggle={
+              <DropdownToggle onToggle={() => setClusterDropdownOpen(!isClusterDropdownOpen)}>
+                <Title headingLevel="h2" size="md">
+                  <ClusterIcon />
+                  {activePerspective === ACM_LINK_ID ? t('public~All Clusters') : activeCluster}
+                </Title>
+              </DropdownToggle>
+            }
+            dropdownItems={[
+              ...(clusterItems.length > 1
+                ? [
+                    <DropdownItem
+                      key={ACM_LINK_ID}
+                      onClick={() =>
+                        (window.location.href = acmLink?.spec?.href ?? window.location.href)
+                      }
+                    >
+                      {t('public~All Clusters')}
+                    </DropdownItem>,
+                  ]
+                : []),
+              ...clusterItems,
+            ]}
+          />
+        </div>
+      )}
+      <div
+        className="oc-nav-header"
+        data-tour-id="tour-perspective-dropdown"
+        data-quickstart-id="qs-perspective-switcher"
+      >
+        <Dropdown
+          isOpen={isPerspectiveDropdownOpen}
+          toggle={renderToggle(icon, name)}
+          dropdownItems={perspectiveItems}
+          data-test-id="perspective-switcher-menu"
+        />
+      </div>
+    </>
   );
 };
 

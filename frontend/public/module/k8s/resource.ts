@@ -32,6 +32,7 @@ export type Options = {
   name?: string;
   path?: string;
   queryParams?: QueryParams;
+  cluster?: string;
 };
 
 export const getK8sResourcePath = (model: K8sKind, options: Options): string => {
@@ -73,9 +74,9 @@ export const k8sGet = (
   kind: K8sKind,
   name: string,
   ns?: string,
-  opts?: Options,
+  opts: Options = {},
   requestInit?: RequestInit,
-) => coFetchJSON(resourceURL(kind, Object.assign({ ns, name }, opts)), 'GET', requestInit);
+) => coFetchJSON(resourceURL(kind, Object.assign({ ns, name }, opts)), 'GET', requestInit, undefined, opts.cluster);
 
 export const k8sCreate = <R extends K8sResourceCommon>(
   kind: K8sKind,
@@ -85,6 +86,9 @@ export const k8sCreate = <R extends K8sResourceCommon>(
   return coFetchJSON.post(
     resourceURL(kind, Object.assign({ ns: data?.metadata?.namespace }, opts)),
     data,
+    undefined,
+    undefined,
+    opts.cluster,
   );
 };
 
@@ -93,7 +97,7 @@ export const k8sUpdate = <R extends K8sResourceCommon>(
   data: R,
   ns?: string,
   name?: string,
-  opts?: Options,
+  opts: Options = {},
 ): Promise<R> =>
   coFetchJSON.put(
     resourceURL(kind, {
@@ -102,6 +106,9 @@ export const k8sUpdate = <R extends K8sResourceCommon>(
       ...opts,
     }),
     data,
+    undefined,
+    undefined,
+    opts.cluster,
   );
 
 export const k8sPatch = <R extends K8sResourceCommon>(
@@ -128,6 +135,9 @@ export const k8sPatch = <R extends K8sResourceCommon>(
       ),
     ),
     patches,
+    undefined,
+    undefined,
+    opts.cluster,
   );
 };
 
@@ -153,6 +163,8 @@ export const k8sKill = <R extends K8sResourceCommon>(
     ),
     json,
     requestInit,
+    undefined,
+    opts.cluster,
   );
 
 export const k8sKillByName = <R extends K8sResourceCommon>(
@@ -168,6 +180,7 @@ export const k8sList = (
   params: { [key: string]: any } = {},
   raw = false,
   requestInit: RequestInit = {},
+  cluster?: string,
 ) => {
   const query = _.map(_.omit(params, 'ns'), (v, k) => {
     if (k === 'labelSelector') {
@@ -177,7 +190,7 @@ export const k8sList = (
   }).join('&');
 
   const listURL = resourceURL(kind, { ns: params.ns });
-  return coFetchJSON(`${listURL}?${query}`, 'GET', requestInit).then((result) => {
+  return coFetchJSON(`${listURL}?${query}`, 'GET', requestInit, undefined, cluster).then((result) => {
     const typedItems = result.items?.map((i) => ({
       kind: kind.kind,
       apiVersion: result.apiVersion,
@@ -191,13 +204,15 @@ export const k8sListPartialMetadata = (
   kind: K8sKind,
   params: { [key: string]: any } = {},
   raw = false,
+  cluster?: string,
 ) => {
   return k8sList(kind, params, raw, {
     headers: {
       Accept:
         'application/json;as=PartialObjectMetadataList;v=v1beta1;g=meta.k8s.io,application/json',
     },
-  });
+  },
+  cluster);
 };
 
 export const k8sWatch = (
@@ -207,6 +222,7 @@ export const k8sWatch = (
     resourceVersion?: string;
     ns?: string;
     fieldSelector?: string;
+    cluster?: string;
   } = {},
   wsOptions: {
     [key: string]: any;
@@ -246,6 +262,10 @@ export const k8sWatch = (
 
   if (query.resourceVersion) {
     queryParams.resourceVersion = encodeURIComponent(query.resourceVersion);
+  }
+
+  if (query.cluster) {
+    queryParams.cluster = encodeURIComponent(query.cluster);
   }
 
   const path = resourceURL(kind, opts);
