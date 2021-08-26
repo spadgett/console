@@ -178,6 +178,8 @@ export const watchK8sList = (
         ...(continueToken ? { continue: continueToken } : {}),
       },
       true,
+      undefined,
+      query.cluster,
     );
 
     if (!REF_COUNTS[id]) {
