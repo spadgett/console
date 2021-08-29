@@ -204,9 +204,9 @@ class App_ extends React.PureComponent {
     );
 
     return (
-      <DetectCluster>
-        <DetectPerspective>
-          <DetectNamespace>
+      <DetectPerspective>
+        <DetectNamespace>
+          <DetectCluster>
             {contextProviderExtensions.reduce(
               (children, e) => (
                 <EnhancedProvider key={e.uid} {...e.properties}>
@@ -215,9 +215,9 @@ class App_ extends React.PureComponent {
               ),
               content,
             )}
-          </DetectNamespace>
-        </DetectPerspective>
-      </DetectCluster>
+          </DetectCluster>
+        </DetectNamespace>
+      </DetectPerspective>
     );
   }
 }

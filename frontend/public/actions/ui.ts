@@ -152,10 +152,27 @@ export const formatNamespaceRoute = (
   originalPath,
   location?,
   forceList?: boolean,
+  activeCluster?: string,
 ) => {
-  let path = originalPath.substr(window.SERVER_FLAGS.basePath.length);
+  const path = originalPath.substr(window.SERVER_FLAGS.basePath.length);
 
   let parts = path.split('/').filter((p) => p);
+
+  if (parts[0] === 'cluster') {
+    // this is the new url pattern starting with /cluster/:clusterName
+    // removing these because they will be added back later
+    parts.splice(0, 2);
+  }
+
+  let clusterPathPart = '';
+
+  const newClusterRoutes = ['/k8s/all-namespaces', '/k8s/cluster', '/k8s/ns'];
+
+  if (activeCluster && newClusterRoutes.includes(`/${parts[0]}/${parts[1]}`)) {
+    // TODO put feature gate HERE.
+    clusterPathPart = `/cluster/${activeCluster}`;
+  }
+
   const prefix = parts.shift();
 
   let previousNS;
@@ -167,15 +184,12 @@ export const formatNamespaceRoute = (
     previousNS = parts.shift();
   }
 
-  if (!previousNS) {
-    return originalPath;
-  }
-
   if (
-    (previousNS !== activeNamespace &&
+    previousNS &&
+    ((previousNS !== activeNamespace &&
       (parts[1] !== 'new' || activeNamespace !== ALL_NAMESPACES_KEY)) ||
-    (activeNamespace === ALL_NAMESPACES_KEY && parts[1] === 'new') ||
-    forceList
+      (activeNamespace === ALL_NAMESPACES_KEY && parts[1] === 'new') ||
+      forceList)
   ) {
     // a given resource will not exist when we switch namespaces, so pop off the tail end
     parts = parts.slice(0, 1);
@@ -184,16 +198,21 @@ export const formatNamespaceRoute = (
   const namespacePrefix =
     activeNamespace === ALL_NAMESPACES_KEY ? 'all-namespaces' : `ns/${activeNamespace}`;
 
-  path = `/${prefix}/${namespacePrefix}`;
+  let newPath = `/${prefix || ''}`;
+
+  if (previousNS) {
+    newPath += `/${namespacePrefix}`;
+  }
+
   if (parts.length) {
-    path += `/${parts.join('/')}`;
+    newPath += `/${parts.join('/')}`;
   }
 
   if (location) {
-    path += `${location.search}${location.hash}`;
+    newPath += `${location.search}${location.hash}`;
   }
 
-  return path;
+  return `${clusterPathPart}${newPath}`;
 };
 
 export const setCurrentLocation = (location: string) =>
