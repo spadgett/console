@@ -58,7 +58,7 @@ const NavHeader: React.FC<NavHeaderProps> = ({ onPerspectiveSelected }) => {
     dispatch(clearSSARFlags());
     dispatch(detectFeatures());
     const oldPath = window.location.pathname;
-    const newPath = formatNamespaceRoute(activeNamespace, oldPath, window.location, true);
+    const newPath = formatNamespaceRoute(activeNamespace, oldPath, window.location, true, cluster);
     if (newPath !== oldPath) {
       history.pushPath(newPath);
     }
