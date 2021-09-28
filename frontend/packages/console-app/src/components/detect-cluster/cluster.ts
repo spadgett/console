@@ -8,9 +8,9 @@ import { setActiveCluster, formatNamespaceRoute } from '@console/internal/action
 import { getCluster } from '@console/internal/components/utils/link';
 import { history } from '@console/internal/components/utils/router';
 // import { useActiveNamespace } from '@console/shared';
+import store from '@console/internal/redux';
 import { LAST_CLUSTER_USER_SETTINGS_KEY } from '@console/shared/src/constants';
 import { useUserSettings } from '@console/shared/src/hooks/useUserSettings';
-import store from '../../../../../public/redux';
 
 export const multiClusterRoutePrefixes = ['/k8s/all-namespaces', '/k8s/cluster', '/k8s/ns'];
 
@@ -37,6 +37,8 @@ export const useValuesForClusterContext = () => {
   );
 
   // const [activeNamespace] = useActiveNamespace();
+  //  const activeNamespace = useSelector(({ UI }) => UI.get('activeNamespace'));
+
   const urlCluster = getCluster(useLocation().pathname);
   React.useEffect(() => {
     if (urlCluster) {

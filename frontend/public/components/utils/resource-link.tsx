@@ -3,7 +3,8 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 import * as classNames from 'classnames';
 import { FLAGS } from '@console/shared/src/constants';
-// import { getActiveCluster } from '@console/internal/actions/ui';
+import { getActiveCluster } from '@console/internal/actions/ui';
+import isMultiClusterEnabled from '@console/app/src/utils/isMultiClusterEnabled';
 
 import { ResourceIcon } from './resource-icon';
 import {
@@ -19,16 +20,19 @@ import { FlagsObject } from '../../reducers/features';
 
 const unknownKinds = new Set();
 
-// import { getActiveCluster } from '@console/internal/reducers/ui';
-
-export const resourcePathFromModel = (model: K8sKind, name?: string, namespace?: string) => {
+export const resourcePathFromModel = (
+  model: K8sKind,
+  name?: string,
+  namespace?: string,
+  cluster?: string,
+) => {
   const { plural, namespaced, crd } = model;
-  //  const activeCluster = getActiveCluster();
+  const activeCluster = cluster || getActiveCluster();
 
   let url = '';
-  // if (activeCluster) {
-  //   url += `/cluster/${activeCluster}`;
-  // }
+  if (activeCluster && isMultiClusterEnabled()) {
+    url += `/cluster/${activeCluster}`;
+  }
 
   url += '/k8s/';
 
