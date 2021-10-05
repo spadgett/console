@@ -2,8 +2,10 @@ import * as _ from 'lodash-es';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import * as classNames from 'classnames';
-
 import { FLAGS } from '@console/shared/src/constants';
+import { getActiveCluster } from '@console/internal/actions/ui';
+import isMultiClusterEnabled from '@console/app/src/utils/isMultiClusterEnabled';
+
 import { ResourceIcon } from './resource-icon';
 import {
   modelFor,
@@ -18,10 +20,21 @@ import { FlagsObject } from '../../reducers/features';
 
 const unknownKinds = new Set();
 
-export const resourcePathFromModel = (model: K8sKind, name?: string, namespace?: string) => {
+export const resourcePathFromModel = (
+  model: K8sKind,
+  name?: string,
+  namespace?: string,
+  cluster?: string,
+) => {
   const { plural, namespaced, crd } = model;
+  const targetCluster = cluster || getActiveCluster();
 
-  let url = '/k8s/';
+  let url = '';
+  if (targetCluster && isMultiClusterEnabled()) {
+    url += `/cluster/${targetCluster}`;
+  }
+
+  url += '/k8s/';
 
   if (!namespaced) {
     url += 'cluster/';
