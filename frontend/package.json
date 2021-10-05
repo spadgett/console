@@ -250,7 +250,7 @@
     "chromedriver": "77.x",
     "circular-dependency-plugin": "5.x",
     "comment-json": "4.x",
-    "copy-webpack-plugin": "^5.1.1",
+    "copy-webpack-plugin": "^6.4.1",
     "css-loader": "^5.2.7",
     "cypress": "^6.0.0",
     "cypress-axe": "^0.12.0",

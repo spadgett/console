@@ -219,32 +219,62 @@ const config: Configuration = {
     new MonacoWebpackPlugin({
       languages: ['yaml', 'dockerfile'],
     }),
-    new CopyWebpackPlugin([{ from: './public/locales', to: 'locales' }]),
-    new CopyWebpackPlugin([{ from: './packages/console-shared/locales', to: 'locales' }]),
-    new CopyWebpackPlugin([{ from: './packages/console-app/locales', to: 'locales' }]),
-    new CopyWebpackPlugin([
-      { from: './packages/operator-lifecycle-manager/locales', to: 'locales' },
-    ]),
-    new CopyWebpackPlugin([{ from: './packages/dev-console/locales', to: 'locales' }]),
-    new CopyWebpackPlugin([{ from: './packages/knative-plugin/locales', to: 'locales' }]),
-    new CopyWebpackPlugin([{ from: './packages/container-security/locales', to: 'locales' }]),
-    new CopyWebpackPlugin([{ from: './packages/pipelines-plugin/locales', to: 'locales' }]),
-    new CopyWebpackPlugin([{ from: './packages/topology/locales', to: 'locales' }]),
-    new CopyWebpackPlugin([{ from: './packages/helm-plugin/locales', to: 'locales' }]),
-    new CopyWebpackPlugin([{ from: './packages/rhoas-plugin/locales', to: 'locales' }]),
-    new CopyWebpackPlugin([{ from: './packages/git-service/locales', to: 'locales' }]),
-    new CopyWebpackPlugin([{ from: './packages/gitops-plugin/locales', to: 'locales' }]),
-    new CopyWebpackPlugin([{ from: './packages/kubevirt-plugin/locales', to: 'locales' }]),
-    new CopyWebpackPlugin([{ from: './packages/ceph-storage-plugin/locales', to: 'locales' }]),
-    new CopyWebpackPlugin([{ from: './packages/metal3-plugin/locales', to: 'locales' }]),
-    new CopyWebpackPlugin([
-      { from: './packages/network-attachment-definition-plugin/locales', to: 'locales' },
-    ]),
-    new CopyWebpackPlugin([{ from: './packages/patternfly/locales', to: 'locales' }]),
-    new CopyWebpackPlugin([{ from: './packages/insights-plugin/locales', to: 'locales' }]),
-    new CopyWebpackPlugin([
-      { from: './packages/local-storage-operator-plugin/locales', to: 'locales' },
-    ]),
+    new CopyWebpackPlugin({ patterns: [{ from: './public/locales', to: 'locales' }] }),
+    new CopyWebpackPlugin({
+      patterns: [{ from: './packages/console-shared/locales', to: 'locales' }],
+    }),
+    new CopyWebpackPlugin({
+      patterns: [{ from: './packages/console-app/locales', to: 'locales' }],
+    }),
+    new CopyWebpackPlugin({
+      patterns: [{ from: './packages/operator-lifecycle-manager/locales', to: 'locales' }],
+    }),
+    new CopyWebpackPlugin({
+      patterns: [{ from: './packages/dev-console/locales', to: 'locales' }],
+    }),
+    new CopyWebpackPlugin({
+      patterns: [{ from: './packages/knative-plugin/locales', to: 'locales' }],
+    }),
+    new CopyWebpackPlugin({
+      patterns: [{ from: './packages/container-security/locales', to: 'locales' }],
+    }),
+    new CopyWebpackPlugin({
+      patterns: [{ from: './packages/pipelines-plugin/locales', to: 'locales' }],
+    }),
+    new CopyWebpackPlugin({ patterns: [{ from: './packages/topology/locales', to: 'locales' }] }),
+    new CopyWebpackPlugin({
+      patterns: [{ from: './packages/helm-plugin/locales', to: 'locales' }],
+    }),
+    new CopyWebpackPlugin({
+      patterns: [{ from: './packages/rhoas-plugin/locales', to: 'locales' }],
+    }),
+    new CopyWebpackPlugin({
+      patterns: [{ from: './packages/git-service/locales', to: 'locales' }],
+    }),
+    new CopyWebpackPlugin({
+      patterns: [{ from: './packages/gitops-plugin/locales', to: 'locales' }],
+    }),
+    new CopyWebpackPlugin({
+      patterns: [{ from: './packages/kubevirt-plugin/locales', to: 'locales' }],
+    }),
+    new CopyWebpackPlugin({
+      patterns: [{ from: './packages/ceph-storage-plugin/locales', to: 'locales' }],
+    }),
+    new CopyWebpackPlugin({
+      patterns: [{ from: './packages/metal3-plugin/locales', to: 'locales' }],
+    }),
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: './packages/network-attachment-definition-plugin/locales', to: 'locales' },
+      ],
+    }),
+    new CopyWebpackPlugin({ patterns: [{ from: './packages/patternfly/locales', to: 'locales' }] }),
+    new CopyWebpackPlugin({
+      patterns: [{ from: './packages/insights-plugin/locales', to: 'locales' }],
+    }),
+    new CopyWebpackPlugin({
+      patterns: [{ from: './packages/local-storage-operator-plugin/locales', to: 'locales' }],
+    }),
     extractCSS,
     virtualModules,
     new ConsoleActivePluginsModule(resolvePluginPackages(), virtualModules),
