@@ -296,9 +296,9 @@ const AppContents: React.FC<{}> = () => {
                 exact
                 render={({ match }) => (
                   <Redirect
-                    to={`/k8s/ns/${match.params.ns}/${referenceForModel(AlertmanagerModel)}/${
-                      match.params.name
-                    }`}
+                    to={`/cluster/:clusterName/k8s/ns/${match.params.ns}/${referenceForModel(
+                      AlertmanagerModel,
+                    )}/${match.params.name}`}
                   />
                 )}
               />

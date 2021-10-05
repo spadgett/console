@@ -27,11 +27,11 @@ export const resourcePathFromModel = (
   cluster?: string,
 ) => {
   const { plural, namespaced, crd } = model;
-  const activeCluster = cluster || getActiveCluster();
+  const targetCluster = cluster || getActiveCluster();
 
   let url = '';
-  if (activeCluster && isMultiClusterEnabled()) {
-    url += `/cluster/${activeCluster}`;
+  if (targetCluster && isMultiClusterEnabled()) {
+    url += `/cluster/${targetCluster}`;
   }
 
   url += '/k8s/';
