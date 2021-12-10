@@ -214,7 +214,9 @@ const config: Configuration = {
     runtimeChunk: true,
   },
   plugins: [
-    new webpack.NormalModuleReplacementPlugin(/^lodash$/, 'lodash-es'),
+    ...(NODE_ENV === 'production'
+      ? [new webpack.NormalModuleReplacementPlugin(/^lodash$/, 'lodash-es')]
+      : []),
     new ForkTsCheckerWebpackPlugin({ checkSyntacticErrors: true, memoryLimit: 4096 }),
     new HtmlWebpackPlugin({
       filename: './tokener.html',
