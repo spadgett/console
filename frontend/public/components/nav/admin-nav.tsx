@@ -172,7 +172,6 @@ const AdminNav: React.FC<AdminNavProps> = ({ pluginNavItems }) => {
         />
         <ResourceNSLink id="statefulsets" resource="statefulsets" name={t('public~StatefulSets')} />
         <ResourceNSLink id="secrets" resource="secrets" name={t('public~Secrets')} />
-        <ResourceNSLink id="configmaps" resource="configmaps" name={t('public~ConfigMaps')} />
         <Separator id="WorkloadsSeparator" name={t('public~WorkloadsSeparator')} />
         <ResourceNSLink id="cronjobs" resource="cronjobs" name={t('public~CronJobs')} />
         <ResourceNSLink id="jobs" resource="jobs" name={t('public~Jobs')} />

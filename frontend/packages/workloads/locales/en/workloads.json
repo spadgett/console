@@ -1,0 +1,7 @@
+{
+  "ConfigMaps": "ConfigMaps",
+  "Name": "Name",
+  "Namespace": "Namespace",
+  "Size": "Size",
+  "Created": "Created"
+}

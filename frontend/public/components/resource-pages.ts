@@ -381,9 +381,6 @@ export const baseListPages = ImmutableMap<ResourceMapKey, ResourceMapValue>()
       (m) => m.ClusterServicePlanPage,
     ),
   )
-  .set(referenceForModel(ConfigMapModel), () =>
-    import('./configmap' /* webpackChunkName: "configmap" */).then((m) => m.ConfigMapsPage),
-  )
   .set(referenceForModel(DaemonSetModel), () =>
     import('./daemon-set' /* webpackChunkName: "daemon-set" */).then((m) => m.DaemonSetsPage),
   )

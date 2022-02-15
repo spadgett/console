@@ -1,0 +1,20 @@
+{
+  "name": "@console/workloads",
+  "version": "0.0.0-fixed",
+  "description": "OpenShift Workload Pages",
+  "private": true,
+  "scripts": {
+    "coverage": "yarn test --coverage --collectCoverageFrom='[\"packages/workloads/src/**\",\"!**/__tests__/**\",\"!packages/workloads/src/test/**\"]'",
+    "lint": "yarn --cwd ../.. eslint packages/workloads",
+    "test": "yarn --cwd ../.. test packages/workloads"
+  },
+  "dependencies": {
+    "@console/plugin-sdk": "0.0.0-fixed"
+  },
+  "consolePlugin": {
+    "entry": "src/plugin.ts",
+    "exposedModules": {
+      "ConfigMapListPage": "src/components/ConfigMapListPage"
+    }
+  }
+}

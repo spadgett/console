@@ -54,6 +54,7 @@ export const init = () => {
         'public',
         'rhoas-plugin',
         'topology',
+        'workloads',
         ...pluginStore.getAllowedDynamicPluginNames().map((name) => `plugin__${name}`),
       ],
       defaultNS: 'public',

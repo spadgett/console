@@ -1,104 +1,11 @@
-import * as _ from 'lodash-es';
 import * as React from 'react';
-import * as classNames from 'classnames';
-import { sortable } from '@patternfly/react-table';
 import { useTranslation } from 'react-i18next';
-import { DetailsPage, ListPage, Table, TableData } from './factory';
+import { DetailsPage } from './factory';
 import { ConfigMapData, ConfigMapBinaryData } from './configmap-and-secret-data';
-import {
-  Kebab,
-  SectionHeading,
-  navFactory,
-  ResourceKebab,
-  ResourceLink,
-  ResourceSummary,
-  Timestamp,
-} from './utils';
+import { Kebab, SectionHeading, navFactory, ResourceSummary } from './utils';
 import { ConfigMapModel } from '../models';
 
 const menuActions = [...Kebab.getExtensionsActionsForKind(ConfigMapModel), ...Kebab.factory.common];
-
-const kind = 'ConfigMap';
-
-const tableColumnClasses = ['', '', 'hidden-xs', 'hidden-xs', Kebab.columnClass];
-
-const ConfigMapTableRow = ({ obj: configMap }) => {
-  return (
-    <>
-      <TableData className={tableColumnClasses[0]}>
-        <ResourceLink
-          kind="ConfigMap"
-          name={configMap.metadata.name}
-          namespace={configMap.metadata.namespace}
-        />
-      </TableData>
-      <TableData
-        className={classNames(tableColumnClasses[1], 'co-break-word')}
-        columnID="namespace"
-      >
-        <ResourceLink kind="Namespace" name={configMap.metadata.namespace} />
-      </TableData>
-      <TableData className={tableColumnClasses[2]}>
-        {_.size(configMap.data) + _.size(configMap.binaryData)}
-      </TableData>
-      <TableData className={tableColumnClasses[3]}>
-        <Timestamp timestamp={configMap.metadata.creationTimestamp} />
-      </TableData>
-      <TableData className={tableColumnClasses[4]}>
-        <ResourceKebab actions={menuActions} kind={kind} resource={configMap} />
-      </TableData>
-    </>
-  );
-};
-
-const ConfigMaps = (props) => {
-  const { t } = useTranslation();
-  const ConfigMapTableHeader = () => [
-    {
-      title: t('public~Name'),
-      sortField: 'metadata.name',
-      transforms: [sortable],
-      props: { className: tableColumnClasses[0] },
-    },
-    {
-      title: t('public~Namespace'),
-      sortField: 'metadata.namespace',
-      transforms: [sortable],
-      props: { className: tableColumnClasses[1] },
-      id: 'namespace',
-    },
-    {
-      title: t('public~Size'),
-      sortFunc: 'dataSize',
-      transforms: [sortable],
-      props: { className: tableColumnClasses[2] },
-    },
-    {
-      title: t('public~Created'),
-      sortField: 'metadata.creationTimestamp',
-      transforms: [sortable],
-      props: { className: tableColumnClasses[3] },
-    },
-    {
-      title: '',
-      props: { className: tableColumnClasses[4] },
-    },
-  ];
-
-  return (
-    <Table
-      {...props}
-      aria-label={t('public~ConfigMaps')}
-      Header={ConfigMapTableHeader}
-      Row={ConfigMapTableRow}
-      virtualize
-    />
-  );
-};
-
-const ConfigMapsPage = (props) => (
-  <ListPage ListComponent={ConfigMaps} canCreate={true} {...props} />
-);
 
 const ConfigMapsDetailsPage = (props) => {
   const { t } = useTranslation();
@@ -134,4 +41,4 @@ const ConfigMapsDetailsPage = (props) => {
   );
 };
 
-export { ConfigMaps, ConfigMapsPage, ConfigMapsDetailsPage };
+export { ConfigMapsDetailsPage };

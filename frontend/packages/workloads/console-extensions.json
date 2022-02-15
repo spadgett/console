@@ -1,0 +1,27 @@
+[
+  {
+    "type": "console.page/resource/list",
+    "properties": {
+      "model": {
+        "group": "core",
+        "version": "v1",
+        "kind": "ConfigMap"
+      },
+      "component": { "$codeRef": "ConfigMapListPage" }
+    }
+  },
+  {
+    "type": "console.navigation/resource-ns",
+    "properties": {
+      "id": "configmaps",
+      "perspective": "admin",
+      "section": "workloads",
+      "name": "%workloads~ConfigMaps%",
+      "insertAfter": "secrets",
+      "model": {
+        "kind": "ConfigMap",
+        "version": "v1"
+      }
+    }
+  }
+]
