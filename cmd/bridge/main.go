@@ -16,6 +16,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/fsnotify/fsnotify"
 	operatorv1 "github.com/openshift/api/operator/v1"
 	authopts "github.com/openshift/console/cmd/bridge/config/auth"
 	"github.com/openshift/console/cmd/bridge/config/session"
@@ -175,6 +176,12 @@ func main() {
 	if err := serverconfig.Validate(fs); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		os.Exit(1)
+	}
+
+	// Set up config file watcher if a config file was specified
+	configFile := fs.Lookup("config").Value.String()
+	if configFile != "" {
+		go watchConfigFile(configFile)
 	}
 
 	authOptions.ApplyConfig(&cfg.Auth)
@@ -698,6 +705,42 @@ func main() {
 	}
 
 	httpsrv.Serve(listener)
+}
+
+// watchConfigFile sets up a file watcher for the config file and exits the app when it changes
+func watchConfigFile(configFile string) {
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		klog.Errorf("Failed to create file watcher: %v", err)
+		return
+	}
+	defer watcher.Close()
+
+	err = watcher.Add(configFile)
+	if err != nil {
+		klog.Errorf("Failed to watch config file %q: %v", configFile, err)
+		return
+	}
+
+	klog.Infof("Watching config file %q for changes", configFile)
+
+	for {
+		select {
+		case event, ok := <-watcher.Events:
+			if !ok {
+				return
+			}
+			if event.Has(fsnotify.Write) || event.Has(fsnotify.Create) || event.Has(fsnotify.Remove) {
+				klog.Infof("Config file %q changed, exiting application", configFile)
+				os.Exit(1)
+			}
+		case err, ok := <-watcher.Errors:
+			if !ok {
+				return
+			}
+			klog.Errorf("File watcher error: %v", err)
+		}
+	}
 }
 
 func listen(scheme, host, certFile, keyFile string) (net.Listener, error) {
