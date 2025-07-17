@@ -170,6 +170,7 @@ func SetFlagsFromConfig(fs *flag.FlagSet, config *Config) (err error) {
 	addProviders(fs, &config.Providers)
 	addMonitoringInfo(fs, &config.MonitoringInfo)
 	addHelmConfig(fs, &config.Helm)
+	addSessionDir(fs, config.SessionDir)
 	addPlugins(fs, config.Plugins)
 	addPluginsOrder(fs, config.PluginsOrder)
 	addI18nNamespaces(fs, config.I18nNamespaces)
@@ -455,6 +456,10 @@ func getDirectiveName(directive string) string {
 		klog.Infof("ignored invalid CSP directive: %s", directive)
 		return ""
 	}
+}
+
+func addSessionDir(fs *flag.FlagSet, sessionDir string) {
+	fs.Set("session-dir", sessionDir)
 }
 
 func addPlugins(fs *flag.FlagSet, plugins MultiKeyValue) {

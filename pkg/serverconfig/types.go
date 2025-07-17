@@ -23,13 +23,14 @@ type Config struct {
 	Providers                    `yaml:"providers"`
 	Helm                         `yaml:"helm"`
 	MonitoringInfo               `yaml:"monitoringInfo,omitempty"`
+	SessionDir                   string                               `yaml:"sessionDir,omitempty"`
 	Plugins                      MultiKeyValue                        `yaml:"plugins,omitempty"`
+	PluginsOrder                 []string                             `yaml:"pluginsOrder,omitempty"`
 	I18nNamespaces               []string                             `yaml:"i18nNamespaces,omitempty"`
 	Proxy                        Proxy                                `yaml:"proxy,omitempty"`
 	ContentSecurityPolicyEnabled bool                                 `yaml:"contentSecurityPolicyEnabled,omitempty"`
 	ContentSecurityPolicy        map[consolev1.DirectiveType][]string `yaml:"contentSecurityPolicy,omitempty"`
 	Telemetry                    MultiKeyValue                        `yaml:"telemetry,omitempty"`
-	PluginsOrder                 []string                             `yaml:"pluginsOrder,omitempty"`
 }
 
 type Proxy struct {
