@@ -6,6 +6,12 @@ import (
 	"github.com/openshift/console/pkg/auth/sessions"
 )
 
+// SessionPersister allows access to session stores for persistence operations
+type SessionPersister interface {
+	ExportSessions() (*sessions.SessionExport, error)
+	ImportSessions(export *sessions.SessionExport) error
+}
+
 type Authenticator interface {
 	Authenticate(w http.ResponseWriter, req *http.Request) (*User, error)
 

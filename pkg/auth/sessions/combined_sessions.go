@@ -6,10 +6,29 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 
 	gorilla "github.com/gorilla/sessions"
 	"golang.org/x/oauth2"
 )
+
+// SessionData represents serializable session data for persistence
+type SessionData struct {
+	SessionToken string    `json:"sessionToken"`
+	UserID       string    `json:"userID"`
+	Name         string    `json:"name"`
+	Email        string    `json:"email"`
+	RawToken     string    `json:"rawToken"`
+	RefreshToken string    `json:"refreshToken"`
+	Expiry       time.Time `json:"expiry"`
+	RotateAt     time.Time `json:"rotateAt"`
+}
+
+// SessionExport represents the complete set of sessions for persistence
+type SessionExport struct {
+	Sessions   []SessionData `json:"sessions"`
+	ExportTime time.Time     `json:"exportTime"`
+}
 
 type CombinedSessionStore struct {
 	serverStore *SessionStore
@@ -184,4 +203,20 @@ func (cs *CombinedSessionStore) DeleteSession(w http.ResponseWriter, r *http.Req
 	}
 
 	return nil
+}
+
+// ExportSessions returns all active sessions in a serializable format
+func (cs *CombinedSessionStore) ExportSessions() (*SessionExport, error) {
+	cs.sessionLock.Lock()
+	defer cs.sessionLock.Unlock()
+
+	return cs.serverStore.ExportSessions()
+}
+
+// ImportSessions restores sessions from serialized data
+func (cs *CombinedSessionStore) ImportSessions(export *SessionExport) error {
+	cs.sessionLock.Lock()
+	defer cs.sessionLock.Unlock()
+
+	return cs.serverStore.ImportSessions(export)
 }

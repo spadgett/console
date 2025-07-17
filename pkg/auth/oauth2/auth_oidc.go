@@ -179,3 +179,13 @@ func (o *oidcAuth) LogoutRedirectURL() string {
 func (o *oidcAuth) oauth2Config() *oauth2.Config {
 	return o.oidcConfig.constructOAuth2Config(o.providerCache.GetItem().Endpoint())
 }
+
+// ExportSessions exports all active sessions for persistence
+func (o *oidcAuth) ExportSessions() (*sessions.SessionExport, error) {
+	return o.sessions.ExportSessions()
+}
+
+// ImportSessions imports sessions from persistence data
+func (o *oidcAuth) ImportSessions(export *sessions.SessionExport) error {
+	return o.sessions.ImportSessions(export)
+}

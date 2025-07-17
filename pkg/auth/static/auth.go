@@ -2,6 +2,7 @@ package static
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/openshift/console/pkg/auth"
 	"github.com/openshift/console/pkg/auth/sessions"
@@ -37,3 +38,16 @@ func (s *StaticAuthenticator) GetOCLoginCommand() string            { return "" 
 func (s *StaticAuthenticator) LogoutRedirectURL() string            { return "" }
 func (s *StaticAuthenticator) GetSpecialURLs() auth.SpecialAuthURLs { return auth.SpecialAuthURLs{} }
 func (s *StaticAuthenticator) IsStatic() bool                       { return true }
+
+// ExportSessions returns empty sessions for static auth (no-op)
+func (s *StaticAuthenticator) ExportSessions() (*sessions.SessionExport, error) {
+	return &sessions.SessionExport{
+		Sessions:   []sessions.SessionData{},
+		ExportTime: time.Now(),
+	}, nil
+}
+
+// ImportSessions is a no-op for static auth
+func (s *StaticAuthenticator) ImportSessions(export *sessions.SessionExport) error {
+	return nil // No sessions to import for static auth
+}

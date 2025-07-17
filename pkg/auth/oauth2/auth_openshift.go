@@ -265,6 +265,16 @@ func (o *openShiftAuth) LogoutRedirectURL() string {
 	return o.logoutRedirectOverride
 }
 
+// ExportSessions exports all active sessions for persistence
+func (o *openShiftAuth) ExportSessions() (*sessions.SessionExport, error) {
+	return o.sessions.ExportSessions()
+}
+
+// ImportSessions imports sessions from persistence data
+func (o *openShiftAuth) ImportSessions(export *sessions.SessionExport) error {
+	return o.sessions.ImportSessions(export)
+}
+
 func (o *openShiftAuth) Authenticate(w http.ResponseWriter, r *http.Request) (*auth.User, error) {
 	ls, err := o.getLoginState(w, r)
 	if err != nil {

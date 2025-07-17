@@ -26,6 +26,7 @@ import (
 	"github.com/openshift/console/pkg/proxy"
 	"github.com/openshift/console/pkg/server"
 	"github.com/openshift/console/pkg/serverconfig"
+	"github.com/openshift/console/pkg/sessionpersistence"
 	oscrypto "github.com/openshift/library-go/pkg/crypto"
 	"k8s.io/client-go/rest"
 	klog "k8s.io/klog/v2"
@@ -83,6 +84,7 @@ func main() {
 
 	// Define commandline / env / config options
 	fs.String("config", "", "The YAML config file.")
+	fSessionDir := fs.String("session-dir", "", "Directory to store session persistence files. Session persistence is only enabled when this flag is provided.")
 
 	fListen := fs.String("listen", "http://0.0.0.0:9000", "")
 
@@ -178,10 +180,23 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Validate session directory if provided
+	sessionDir := *fSessionDir
+	if err := sessionpersistence.ValidateSessionDirectory(sessionDir); err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+		os.Exit(1)
+	}
+	if sessionDir != "" {
+		klog.Infof("Using session directory: %q", sessionDir)
+	}
+
+	// Initialize session persistence manager
+	sessionManager := sessionpersistence.New(sessionDir)
+
 	// Set up config file watcher if a config file was specified
 	configFile := fs.Lookup("config").Value.String()
 	if configFile != "" {
-		go watchConfigFile(configFile)
+		go watchConfigFile(configFile, sessionManager)
 	}
 
 	authOptions.ApplyConfig(&cfg.Auth)
@@ -650,6 +665,12 @@ func main() {
 		klog.Fatalf("failed to apply configuration to server: %v", err)
 	}
 
+	// Store the authenticator in session manager for session persistence
+	sessionManager.SetAuthenticator(srv.Authenticator)
+
+	// Restore sessions from previous run now that authenticator is available
+	sessionManager.RestoreSessions()
+
 	listenURL, err := flags.ValidateFlagIsURL("listen", *fListen, false)
 	flags.FatalIfFailed(err)
 
@@ -708,7 +729,7 @@ func main() {
 }
 
 // watchConfigFile sets up a file watcher for the config file and exits the app when it changes
-func watchConfigFile(configFile string) {
+func watchConfigFile(configFile string, sessionManager *sessionpersistence.SessionPersistenceManager) {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		klog.Errorf("Failed to create file watcher: %v", err)
@@ -731,7 +752,8 @@ func watchConfigFile(configFile string) {
 				return
 			}
 			if event.Has(fsnotify.Write) || event.Has(fsnotify.Create) || event.Has(fsnotify.Remove) {
-				klog.Infof("Config file %q changed, exiting application", configFile)
+				klog.Infof("Config file %q changed, persisting sessions and exiting application", configFile)
+				sessionManager.PersistSessions()
 				os.Exit(1)
 			}
 		case err, ok := <-watcher.Errors:

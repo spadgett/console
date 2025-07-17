@@ -192,3 +192,65 @@ func spliceOut(slice []*LoginState, toRemove *LoginState) []*LoginState {
 	}
 	return slice
 }
+
+// ExportSessions returns all active sessions in a serializable format
+func (ss *SessionStore) ExportSessions() (*SessionExport, error) {
+	ss.mux.Lock()
+	defer ss.mux.Unlock()
+
+	var sessions []SessionData
+	for _, ls := range ss.byToken {
+		if !ls.IsExpired() {
+			sessions = append(sessions, SessionData{
+				SessionToken: ls.sessionToken,
+				UserID:       ls.userID,
+				Name:         ls.name,
+				Email:        ls.email,
+				RawToken:     ls.rawToken,
+				RefreshToken: ls.refreshToken,
+				Expiry:       ls.exp,
+				RotateAt:     ls.rotateAt,
+			})
+		}
+	}
+
+	return &SessionExport{
+		Sessions:   sessions,
+		ExportTime: ss.now(),
+	}, nil
+}
+
+// ImportSessions restores sessions from serialized data
+func (ss *SessionStore) ImportSessions(export *SessionExport) error {
+	ss.mux.Lock()
+	defer ss.mux.Unlock()
+
+	for _, sessionData := range export.Sessions {
+		// Skip expired sessions
+		if ss.now().After(sessionData.Expiry) {
+			continue
+		}
+
+		// Create LoginState from SessionData
+		ls := &LoginState{
+			userID:       sessionData.UserID,
+			name:         sessionData.Name,
+			email:        sessionData.Email,
+			exp:          sessionData.Expiry,
+			rotateAt:     sessionData.RotateAt,
+			now:          ss.now,
+			sessionToken: sessionData.SessionToken,
+			rawToken:     sessionData.RawToken,
+			refreshToken: sessionData.RefreshToken,
+		}
+
+		// Add to session store maps
+		ss.byToken[ls.sessionToken] = ls
+		if ls.refreshToken != "" {
+			ss.byRefreshToken[ls.refreshToken] = ls
+		}
+		ss.byAge = append(ss.byAge, ls)
+	}
+
+	return nil
+}
