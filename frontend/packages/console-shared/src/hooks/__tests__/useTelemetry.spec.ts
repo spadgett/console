@@ -76,10 +76,10 @@ describe('getClusterProperties', () => {
     expect(getClusterProperties().consoleVersion).toBe('4.17.4');
   });
 
-  it('falls back to consoleVersion if releaseVersion is not set', () => {
+  it('returns undefined if releaseVersion is not set', () => {
     window.SERVER_FLAGS = { ...originServerFlags, consoleVersion: 'v6.0.6-23079-g6689498225' };
     delete window.SERVER_FLAGS.releaseVersion;
-    expect(getClusterProperties().consoleVersion).toBe('v6.0.6-23079-g6689498225');
+    expect(getClusterProperties().consoleVersion).toBe(undefined);
   });
 
   it('returns undefined when releaseVersion and consoleVersion are not set', () => {
@@ -173,7 +173,7 @@ describe('useTelemetry', () => {
   it('calls the listener with console version and clusterType when they are configured (x.y.z and OSD)', () => {
     window.SERVER_FLAGS = {
       ...originServerFlags,
-      consoleVersion: 'x.y.z',
+      releaseVersion: 'x.y.z',
       telemetry: { CLUSTER_TYPE: 'OSD', STATE: CLUSTER_TELEMETRY_ANALYTICS.ENFORCE },
     };
     updateClusterPropertiesFromTests();
@@ -191,7 +191,7 @@ describe('useTelemetry', () => {
   it('calls the listener with the optional properties', () => {
     window.SERVER_FLAGS = {
       ...originServerFlags,
-      consoleVersion: 'x.y.z',
+      releaseVersion: 'x.y.z',
       telemetry: { CLUSTER_TYPE: 'OSD', STATE: CLUSTER_TELEMETRY_ANALYTICS.ENFORCE },
     };
     updateClusterPropertiesFromTests();
@@ -211,7 +211,7 @@ describe('useTelemetry', () => {
   it('calls the listener with clusterType DEVSANDBOX when CLUSTER_TYPE is OSD and DEVSANDBOX is "true"', () => {
     window.SERVER_FLAGS = {
       ...originServerFlags,
-      consoleVersion: 'x.y.z',
+      releaseVersion: 'x.y.z',
       telemetry: {
         CLUSTER_TYPE: 'OSD',
         DEVSANDBOX: 'true',
